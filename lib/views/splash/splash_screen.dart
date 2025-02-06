@@ -9,13 +9,11 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  SplashServices _splashServices = SplashServices();
+  final SplashServices _splashServices = SplashServices();
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-
     _splashServices.navigateToNextScreen(context);
   }
 
@@ -24,13 +22,17 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: SafeArea(
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              CircularProgressIndicator(color: Colors.blue),
-              SizedBox(height: 20),
-              Text('Loading...'),
-            ],
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.blue.withAlpha(25),
+            ),
+            child: const Icon(
+              Icons.fact_check,
+              size: 100,
+              color: Colors.blue,
+            ),
           ),
         ),
       ),

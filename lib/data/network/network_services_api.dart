@@ -5,16 +5,17 @@ import 'package:http/http.dart' as http;
 
 import 'package:it_way_bd_task/data/exceptions/app_exceptions.dart';
 import 'package:it_way_bd_task/data/network/base_api_services.dart';
-import 'package:it_way_bd_task/utils/app_utils.dart';
+
+import 'package:it_way_bd_task/config/app_url.dart';
 
 class NetworkServicesApi implements BaseApiServices {
   @override
-  Future<dynamic> getApi(String endpoint) async {
+  Future<dynamic> getTask(String endpoint) async {
     dynamic jsonResponse;
 
     try {
       final response = await http
-          .get(Uri.parse('$baseUrl/$endpoint'))
+          .get(Uri.parse('${AppUrl.baseUrl}/$endpoint'))
           .timeout(Duration(seconds: 50));
 
       jsonResponse = returnResponse(response);
@@ -30,12 +31,12 @@ class NetworkServicesApi implements BaseApiServices {
   }
 
   @override
-  Future<dynamic> postApi(String endpoint, data) async {
+  Future<dynamic> postTask(String endpoint, data) async {
     dynamic jsonResponse;
 
     try {
       final response = await http
-          .post(Uri.parse('$baseUrl/$endpoint'), body: data)
+          .post(Uri.parse('${AppUrl.baseUrl}/$endpoint'), body: data)
           .timeout(Duration(seconds: 50));
 
       jsonResponse = returnResponse(response);
