@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:it_way_bd_task/data/models/add_task/add_task_model.dart';
 import 'package:it_way_bd_task/data/models/task/task_model.dart';
+import 'package:it_way_bd_task/repository/add_task/add_task_repository.dart';
 import 'package:it_way_bd_task/repository/task/task_repository.dart';
+import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -11,17 +14,86 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   late Future<List<TaskModel>> _tasks;
+  final TaskRepository _taskRepository = TaskRepository();
+  final AddTaskRepository _addTaskRepository = AddTaskRepository();
 
   @override
   void initState() {
     super.initState();
-    _tasks = TaskRepository().getTasks();
+    _fetchTasks();
+  }
+
+  /// Fetch tasks from API
+  void _fetchTasks() {
+    setState(() {
+      _tasks = _taskRepository.getTasks();
+    });
+  }
+
+  /// Show Add Task Dialog
+  void _showAddTaskDialog(List<TaskModel> tasks) {
+    TextEditingController taskController = TextEditingController();
+
+    // Extract userId from first task
+    int userId = tasks.isNotEmpty ? tasks.first.userId : 1;
+
+    print("User ID: $userId");
+
+    // Generate next available ID
+    int nextId = tasks.isNotEmpty
+        ? (tasks.map((task) => task.id).reduce((a, b) => a > b ? a : b) + 1)
+        : 1;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Add New Task"),
+          content: TextField(
+            controller: taskController,
+            decoration: const InputDecoration(
+              hintText: "Enter task...",
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                String taskText = taskController.text.trim();
+                if (taskText.isNotEmpty) {
+                  await _addTask(nextId, taskText, userId);
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text("Add"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Add task to API and refresh list
+  Future<void> _addTask(int id, String taskText, int userId) async {
+    try {
+      final newTask = AddTaskModel(id: id, todo: taskText, completed: false, userId: userId);
+      await _addTaskRepository.addTask(newTask);
+      _fetchTasks(); // Refresh task list
+      showToast("✅ Task added successfully!\n⚠️ This is a dummy API, so your todo is not saved on the server.", context: context, animation: StyledToastAnimation.slideFromLeft, position: StyledToastPosition.top, duration: const Duration(seconds: 10));
+      
+    } catch (e) {
+      print("Error adding task: $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200], 
+      backgroundColor: Colors.grey[200],
       appBar: AppBar(
         title: const Text(
           'Task Manager',
@@ -51,7 +123,7 @@ class _HomeState extends State<Home> {
               ),
             );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return _buildEmptyState(); 
+            return _buildEmptyState();
           } else {
             final tasks = snapshot.data!;
             return ListView.builder(
@@ -65,12 +137,18 @@ class _HomeState extends State<Home> {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Implement add task functionality
+      floatingActionButton: FutureBuilder<List<TaskModel>>(
+        future: _tasks,
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+            return FloatingActionButton(
+              onPressed: () => _showAddTaskDialog(snapshot.data!),
+              backgroundColor: Colors.blue,
+              child: const Icon(Icons.add, size: 30, color: Colors.white),
+            );
+          }
+          return const SizedBox.shrink(); // Hide FAB if no user data is available
         },
-        backgroundColor: Colors.blue,
-        child: const Icon(Icons.add, size: 30, color: Colors.white),
       ),
     );
   }

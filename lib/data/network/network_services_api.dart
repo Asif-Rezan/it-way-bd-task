@@ -36,12 +36,14 @@ class NetworkServicesApi implements BaseApiServices {
 
     try {
       final response = await http
-          .post(Uri.parse('${AppUrl.baseUrl}/$endpoint'), body: data)
-          .timeout(Duration(seconds: 50));
+          .post(
+            Uri.parse('${AppUrl.baseUrl}/$endpoint'),
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode(data),
+          )
+          .timeout(const Duration(seconds: 50));
 
       jsonResponse = returnResponse(response);
-
-      if (response.statusCode == 200) {}
     } on SocketException {
       throw NoInternetException('No Internet Connection');
     } on TimeoutException {
@@ -54,6 +56,9 @@ class NetworkServicesApi implements BaseApiServices {
   dynamic returnResponse(http.Response response) {
     switch (response.statusCode) {
       case 200:
+        var responseJson = json.decode(response.body.toString());
+        return responseJson;
+      case 201:
         var responseJson = json.decode(response.body.toString());
         return responseJson;
       case 400:
