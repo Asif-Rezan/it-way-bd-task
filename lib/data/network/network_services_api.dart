@@ -53,6 +53,29 @@ class NetworkServicesApi implements BaseApiServices {
     return jsonResponse;
   }
 
+@override
+ Future<dynamic> updateTask(String endpoint, Map<String, dynamic> data) async {
+    dynamic jsonResponse;
+
+    try {
+      final response = await http.put(
+        Uri.parse('${AppUrl.baseUrl}/$endpoint'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(data),
+      ).timeout(const Duration(seconds: 50));
+
+      jsonResponse = returnResponse(response);
+    } on SocketException {
+      throw NoInternetException('No Internet Connection');
+    } on TimeoutException {
+      throw FetchDataException('Timeout');
+    }
+
+    return jsonResponse;
+  }
+
+
+
   dynamic returnResponse(http.Response response) {
     switch (response.statusCode) {
       case 200:
