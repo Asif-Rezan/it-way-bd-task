@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class AddTaskDialog extends StatefulWidget {
   final Function(String) onTaskAdded;
 
-  const AddTaskDialog({Key? key, required this.onTaskAdded}) : super(key: key);
+  const AddTaskDialog({super.key, required this.onTaskAdded});
 
   @override
   _AddTaskDialogState createState() => _AddTaskDialogState();

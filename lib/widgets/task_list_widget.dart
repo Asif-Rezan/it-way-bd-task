@@ -7,10 +7,10 @@ class TaskList extends StatelessWidget {
   final Function(TaskModel) onUpdateTask;
 
   const TaskList({
-    Key? key,
+    super.key,
     required this.tasks,
     required this.onUpdateTask,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

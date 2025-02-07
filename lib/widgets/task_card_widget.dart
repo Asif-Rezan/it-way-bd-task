@@ -6,10 +6,10 @@ class TaskCard extends StatelessWidget {
   final Function(TaskModel) onUpdateTask;
 
   const TaskCard({
-    Key? key,
+    super.key,
     required this.task,
     required this.onUpdateTask,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
